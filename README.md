@@ -65,7 +65,7 @@ pcall(function()
 
   CreateThread, MultiThreadList = function(Func: (...any) -> (), ...: any): thread
         local Thread: thread = Library.Utility:CreateThread(Func, ...)
-        Insert(ThreadList, Thread)
+        table.insert(ThreadList, Thread)
 
         return Thread;
     end, function(JobList: { any }, ...: any): { thread }
@@ -203,7 +203,7 @@ pcall(function()
 
   CreateThread, MultiThreadList = function(Func: (...any) -> (), ...: any): thread
         local Thread: thread = Library.Utility:CreateThread(Func, ...)
-        Insert(ThreadList, Thread)
+        table.insert(ThreadList, Thread)
 
         return Thread;
     end, function(JobList: { any }, ...: any): { thread }
