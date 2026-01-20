@@ -2,7 +2,7 @@
 
 <img width="512" height="512" alt="logo" src="https://github.com/user-attachments/assets/45cebd1e-bc88-4e9b-93f2-df09e12591c4" />
 
-<a href="https://discord.gg/pfhacX3ZPY">
+<a href="https://discord.gg/6KeAYQ9bD8">
   <div>
     
 
