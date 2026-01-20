@@ -57,7 +57,7 @@ do
 	assert(writefile, "[nocturnal @ fetch] Unsupported executor. | ", os.clock());
 	assert(Drawing, "[nocturnal @ fetch] Unsupported executor. | ", os.clock());
 
-	pcall(Download, "Library.lua", "Storm99999", "Nocturnal-Remastered", "Source.lua");
+	pcall(Download, "Library.lua", "Storm99999", "Nocturnal-Remastered", "Source.luau");
 end;
 
 pcall(function()
@@ -195,7 +195,7 @@ do
 	assert(writefile, "[nocturnal @ fetch] Unsupported executor. | ", os.clock());
 	assert(Drawing, "[nocturnal @ fetch] Unsupported executor. | ", os.clock());
 
-	pcall(Download, "Library.lua", "Storm99999", "Nocturnal-Remastered", "Source.lua");
+	pcall(Download, "Library.lua", "Storm99999", "Nocturnal-Remastered", "Source.luau");
 end;
 
 pcall(function()
