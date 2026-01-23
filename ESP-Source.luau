@@ -14,9 +14,11 @@ local Floor, Round, Atan2, Sin, Cos, TableClear, Unpack, TableFind, TableCreate 
 local WtVp, IsA, GetPivot, FindFirstChild, FindFirstChildOfClass, GetChildren =
 	Camera.WorldToViewportPoint, Workspace.IsA, Workspace.GetPivot, Workspace.FindFirstChild, Workspace.FindFirstChildOfClass, Workspace.GetChildren;
 local ToOrientation, PointToObjectSpace = CFrame.identity.ToOrientation, CFrame.identity.PointToObjectSpace;
-local LerpColor = Color3.new().Lerp;
+local NewColor = Color3.new;
+local NewVec = vector.create;
+local LerpColor = NewColor().Lerp;
 local Min2, Max2, Lerp2 = Vector2.zero.Min, Vector2.zero.Max, Vector2.zero.Lerp;
-local Min3, Max3 = Vector3.zero.Min, Vector3.zero.Max;
+local Min3, Max3 = vector.min, vector.max;
 
 --// Constants
 local HEALTH_BAR_OFFSET: Vector2 = Vector2.new(5, 0);
@@ -24,15 +26,15 @@ local HEALTH_TEXT_OFFSET: Vector2 = Vector2.new(3, 0);
 local HEALTH_BAR_OUTLINE_OFFSET: Vector2 = Vector2.new(0, 1);
 local NAME_OFFSET: Vector2 = Vector2.new(0, 2);
 local DISTANCE_OFFSET: Vector2 = Vector2.new(0, 2);
-local VERTICES: { Vector3 } = {
-	Vector3.new(-1, -1, -1),
-	Vector3.new(-1, 1, -1),
-	Vector3.new(-1, 1, 1),
-	Vector3.new(-1, -1, 1),
-	Vector3.new(1, -1, -1),
-	Vector3.new(1, 1, -1),
-	Vector3.new(1, 1, 1),
-	Vector3.new(1, -1, 1)
+local VERTICES: { vector } = {
+	NewVec(-1, -1, -1),
+	NewVec(-1, 1, -1),
+	NewVec(-1, 1, 1),
+	NewVec(-1, -1, 1),
+	NewVec(1, -1, -1),
+	NewVec(1, 1, -1),
+	NewVec(1, 1, 1),
+	NewVec(1, -1, 1)
 };
 
 local SKELETON_BONE_DEFS = {
@@ -58,7 +60,7 @@ local SKELETON_BONE_DEFS = {
 
 local Fading: { Player } = {};
 
---// Types
+--// Type aliases
 type EspObject = {
 	Player: Player,
 	Interface: table,
@@ -170,9 +172,9 @@ local function IsBodyPart(Name: string): boolean
 	return Name == "Head" or Name:find("Torso") or Name:find("Leg") or Name:find("Arm");
 end;
 
-local function GetBoundingBox(Parts: { BasePart }): (CFrame, Vector3)
-	local MinV: Vector3?
-	local MaxV: Vector3?
+local function GetBoundingBox(Parts: { BasePart }): (CFrame, vector)
+	local MinV: vector?
+	local MaxV: vector?
 	for i = 1, #Parts do
 		local p = Parts[i];
 		local cf, s = p.CFrame, p.Size;
@@ -181,16 +183,16 @@ local function GetBoundingBox(Parts: { BasePart }): (CFrame, Vector3)
 	end;
 
 	local Center = (MinV + MaxV) * 0.5;
-	local Front = Vector3.new(Center.X, Center.Y, MaxV.Z);
+	local Front = NewVec(Center.X, Center.Y, MaxV.Z);
 	return CFrame.new(Center, Front), (MaxV - MinV);
 end;
 
-local function WorldToScreen(World: Vector3): (Vector2, boolean, number)
+local function WorldToScreen(World: vector): (Vector2, boolean, number)
 	local Screen, InBounds = WtVp(Camera, World);
 	return Vector2.new(Screen.X, Screen.Y), InBounds, Screen.Z;
 end;
 
-local function CalculateCorners(CFrameObj: CFrame, Size: Vector3): Corners
+local function CalculateCorners(CFrameObj: CFrame, Size: vector): Corners
 	local CornerScreens: { Vector2 } = TableCreate(#VERTICES);
 	for i = 1, #VERTICES do
 		local WorldPos = (CFrameObj + Size * 0.5 * VERTICES[i]).Position;
@@ -215,7 +217,7 @@ end;
 
 local function ParseColor(Self: any, ColorOrToken: any, IsOutline: boolean?): Color3
 	if ColorOrToken == "Team Color" or (Self.Interface.sharedSettings.useTeamColor and not IsOutline) then
-		return Self.Interface.getTeamColor(Self.Player) or Color3.new(1, 1, 1);
+		return Self.Interface.getTeamColor(Self.Player) or NewColor(1, 1, 1);
 	end;
 	return ColorOrToken;
 end;
@@ -594,8 +596,12 @@ function EspObject:Render(): nil
 				local APos, AOn, ADepth = WorldToScreen(A.Position);
 				local BPos, BOn, BDepth = WorldToScreen(B.Position);
 				local VisibleLine = AOn and BOn;
+
 				Outline.Visible = VisibleLine;
+				Outline.ZIndex = 998;
 				Line.Visible = VisibleLine;
+				Line.ZIndex = 999;
+
 				if VisibleLine then
 					Outline.From = APos;
 					Outline.To = BPos;
@@ -681,7 +687,7 @@ function EspObject:Render(): nil
 		local OutlineThickness = Options.cornerOutline and (Options.cornerOutlineThickness or 3) or 0;
 		local InnerColor = ParseColor(self, Options.cornerColor[1]);
 		local InnerTransparency = Options.cornerColor[2] or 1;
-		local OutlineColor = ParseColor(self, Options.cornerOutlineColor or Color3.new(), true);
+		local OutlineColor = ParseColor(self, Options.cornerOutlineColor or NewColor(), true);
 		local OutlineTransparency = Options.cornerOutlineColor and (Options.cornerOutlineColor[2] or 1) or 1;
 
 		local function SetCorner(idx: number, cornerPos: Vector2, horizDir: Vector2, vertDir: Vector2)
@@ -960,9 +966,9 @@ function ChamObject:Update(): nil
 			local UseColor: Color3 = Options.chamsFillColor[1];
 			if Interface.teamCheck then
 				if self.Player.TeamColor == LocalPlayer.TeamColor then
-					UseColor = Options.greenColor or Color3.new(0, 1, 0);
+					UseColor = Options.greenColor or NewColor(0, 1, 0);
 				else
-					UseColor = Options.redColor or Color3.new(1, 0, 0);
+					UseColor = Options.redColor or NewColor(1, 0, 0);
 				end;
 			end;
 			if Options.chamsTeamColor then
@@ -1043,9 +1049,9 @@ function InstanceObject:Construct(): nil
 	local Options = self.options;
 	Options.enabled = if Options.enabled == nil then true else Options.enabled;
 	Options.text = Options.text or "{name}";
-	Options.textColor = Options.textColor or {Color3.new(1, 1, 1), 1};
+	Options.textColor = Options.textColor or {NewColor(1, 1, 1), 1};
 	Options.textOutline = if Options.textOutline == nil then true else Options.textOutline;
-	Options.textOutlineColor = Options.textOutlineColor or Color3.new();
+	Options.textOutlineColor = Options.textOutlineColor or NewColor();
 	Options.textSize = Options.textSize or 13;
 	Options.textFont = Options.textFont or 2;
 	Options.limitDistance = Options.limitDistance or false;
@@ -1118,51 +1124,51 @@ local EspInterface = {
 		enemy = {
 			enabled = false,
 			box = false,
-			boxColor = { Color3.new(1, 0, 0), 1 },
+			boxColor = { NewColor(1, 0, 0), 1 },
 			boxOutline = true,
-			boxOutlineColor = { Color3.new(), 1 },
+			boxOutlineColor = { NewColor(), 1 },
 			boxFill = false,
-			boxFillColor = { Color3.new(1, 1, 1), 0.5 },
+			boxFillColor = { NewColor(1, 1, 1), 0.5 },
 			healthBar = false,
-			healthyColor = Color3.new(0, 1, 0),
-			dyingColor = Color3.new(1, 0, 0),
+			healthyColor = NewColor(0, 1, 0),
+			dyingColor = NewColor(1, 0, 0),
 			healthBarOutline = true,
-			healthBarOutlineColor = { Color3.new(), 0.5 },
+			healthBarOutlineColor = { NewColor(), 0.5 },
 			healthText = false,
-			healthTextColor = { Color3.new(1, 1, 1), 1 },
+			healthTextColor = { NewColor(1, 1, 1), 1 },
 			healthTextOutline = true,
-			healthTextOutlineColor = Color3.new(),
+			healthTextOutlineColor = NewColor(),
 			box3d = false,
-			box3dColor = { Color3.new(1, 0, 0), 1 },
+			box3dColor = { NewColor(1, 0, 0), 1 },
 			name = false,
-			nameColor = { Color3.new(1, 1, 1), 1 },
+			nameColor = { NewColor(1, 1, 1), 1 },
 			nameOutline = true,
-			nameOutlineColor = Color3.new(),
+			nameOutlineColor = NewColor(),
 			weapon = false,
-			weaponColor = { Color3.new(1, 1, 1), 1 },
+			weaponColor = { NewColor(1, 1, 1), 1 },
 			weaponOutline = true,
-			weaponOutlineColor = { Color3.new(), 1 },
+			weaponOutlineColor = { NewColor(), 1 },
 			distance = false,
-			distanceColor = { Color3.new(1, 1, 1), 1 },
+			distanceColor = { NewColor(1, 1, 1), 1 },
 			distanceOutline = true,
-			distanceOutlineColor = Color3.new(),
+			distanceOutlineColor = NewColor(),
 			tracer = false,
 			tracerOrigin = "Bottom",
-			tracerColor = { Color3.new(1, 0, 0), 1 },
+			tracerColor = { NewColor(1, 0, 0), 1 },
 			tracerOutline = true,
-			tracerOutlineColor = { Color3.new(), 1 },
+			tracerOutlineColor = { NewColor(), 1 },
 			offScreenArrow = false,
-			offScreenArrowColor = { Color3.new(1, 1, 1), 1 },
+			offScreenArrowColor = { NewColor(1, 1, 1), 1 },
 			offScreenArrowSize = 15,
 			offScreenArrowRadius = 150,
 			offScreenArrowOutline = true,
-			offScreenArrowOutlineColor = { Color3.new(), 1 },
+			offScreenArrowOutlineColor = { NewColor(), 1 },
 			chams = false,
 			chamsVisibleOnly = false,
 			chamsFillColor = { Color3.fromRGB(162, 164, 189), 1 },
-			chamsOutlineColor = { Color3.new(1, 0, 0), 0 },
+			chamsOutlineColor = { NewColor(1, 0, 0), 0 },
 			--// NEW (i added this): chamsStyle -> "Highlight" or "Drawing"
-			chamsStyle = "Highlight",
+			chamsStyle = "Drawing",
 			chamsTeamColor = false,
 
             cornerEsp = false,
@@ -1170,64 +1176,64 @@ local EspInterface = {
 			cornerThickness = 1,
 			cornerOutline = true,
 			cornerOutlineThickness = 3,
-			cornerColor = { Color3.new(1, 1, 1), 1 },
-			cornerOutlineColor = { Color3.new(), 1 },
+			cornerColor = { NewColor(1, 1, 1), 1 },
+			cornerOutlineColor = { NewColor(), 1 },
 
 			--// skeleton (I added this)
 			skeleton = false,
-			skeletonColor = { Color3.new(1, 0, 0), 1 },
+			skeletonColor = { NewColor(1, 0, 0), 1 },
 			skeletonOutline = true,
-			skeletonOutlineColor = { Color3.new(), 0 },
+			skeletonOutlineColor = { NewColor(), 1 },
 
-            greenColor = Color3.new(0, 1, 0),
-			redColor = Color3.new(1, 0, 0)
+            greenColor = NewColor(0, 1, 0),
+			redColor = NewColor(1, 0, 0)
 		},
 		friendly = {
 			enabled = false,
 			box = false,
-			boxColor = { Color3.new(0, 1, 0), 1 },
+			boxColor = { NewColor(0, 1, 0), 1 },
 			boxOutline = true,
-			boxOutlineColor = { Color3.new(), 1 },
+			boxOutlineColor = { NewColor(), 1 },
 			boxFill = false,
-			boxFillColor = { Color3.new(0, 1, 0), 0.5 },
+			boxFillColor = { NewColor(0, 1, 0), 0.5 },
 			healthBar = false,
-			healthyColor = Color3.new(0, 1, 0),
-			dyingColor = Color3.new(1, 0, 0),
+			healthyColor = NewColor(0, 1, 0),
+			dyingColor = NewColor(1, 0, 0),
 			healthBarOutline = true,
-			healthBarOutlineColor = {Color3.new(), 0.5},
+			healthBarOutlineColor = {NewColor(), 0.5},
 			healthText = false,
-			healthTextColor = {Color3.new(1, 1, 1), 1},
+			healthTextColor = {NewColor(1, 1, 1), 1},
 			healthTextOutline = true,
-			healthTextOutlineColor = Color3.new(),
+			healthTextOutlineColor = NewColor(),
 			box3d = false,
-			box3dColor = {Color3.new(0, 1, 0), 1},
+			box3dColor = {NewColor(0, 1, 0), 1},
 			name = false,
-			nameColor = {Color3.new(1, 1, 1), 1},
+			nameColor = {NewColor(1, 1, 1), 1},
 			nameOutline = true,
-			nameOutlineColor = Color3.new(),
+			nameOutlineColor = NewColor(),
 			weapon = false,
-			weaponColor = {Color3.new(1, 1, 1), 1},
+			weaponColor = {NewColor(1, 1, 1), 1},
 			weaponOutline = true,
-			weaponOutlineColor = {Color3.new(), 1},
+			weaponOutlineColor = {NewColor(), 1},
 			distance = false,
-			distanceColor = {Color3.new(1, 1, 1), 1},
+			distanceColor = {NewColor(1, 1, 1), 1},
 			distanceOutline = true,
-			distanceOutlineColor = Color3.new(),
+			distanceOutlineColor = NewColor(),
 			tracer = false,
 			tracerOrigin = "Bottom",
-			tracerColor = {Color3.new(0, 1, 0), 1},
+			tracerColor = {NewColor(0, 1, 0), 1},
 			tracerOutline = true,
-			tracerOutlineColor = {Color3.new(), 1},
+			tracerOutlineColor = {NewColor(), 1},
 			offScreenArrow = false,
-			offScreenArrowColor = {Color3.new(1, 1, 1), 1},
+			offScreenArrowColor = {NewColor(1, 1, 1), 1},
 			offScreenArrowSize = 15,
 			offScreenArrowRadius = 150,
 			offScreenArrowOutline = true,
-			offScreenArrowOutlineColor = {Color3.new(), 1},
+			offScreenArrowOutlineColor = {NewColor(), 1},
 			chams = false,
 			chamsVisibleOnly = false,
-			chamsFillColor = {Color3.new(0.2, 0.2, 0.2), 0.5},
-			chamsOutlineColor = {Color3.new(0, 1, 0), 0},
+			chamsFillColor = {NewColor(0.2, 0.2, 0.2), 0.5},
+			chamsOutlineColor = {NewColor(0, 1, 0), 0},
 			chamsStyle = "Highlight",
 			chamsTeamColor = false,
 
@@ -1236,12 +1242,12 @@ local EspInterface = {
 			cornerThickness = 1,
 			cornerOutline = true,
 			cornerOutlineThickness = 3,
-			cornerColor = { Color3.new(0, 1, 0), 1 },
-			cornerOutlineColor = { Color3.new(), 1 },
+			cornerColor = { NewColor(0, 1, 0), 1 },
+			cornerOutlineColor = { NewColor(), 1 },
 			skeleton = false,
-			skeletonColor = { Color3.new(0, 1, 0), 1 },
+			skeletonColor = { NewColor(0, 1, 0), 1 },
 			skeletonOutline = false,
-			skeletonOutlineColor = { Color3.new(), 0 }
+			skeletonOutlineColor = { NewColor(), 0 }
 		};
 	};
 };
@@ -1344,6 +1350,7 @@ function EspInterface.getHealth(PlayerObj: Player): (number, number)
 	if Humanoid then
 		return Humanoid.Health, Humanoid.MaxHealth;
 	end;
+
 	return 100, 100;
 end;
 
