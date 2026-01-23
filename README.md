@@ -240,6 +240,8 @@ pcall(function()
     end;
 end)
 
+pcall(Library.Init);
+
 local Window = Library:Window({
     Title = "Nocturnal Example",
     Size = UDim2.new(0, 525, 0, 650),
