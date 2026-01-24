@@ -240,7 +240,7 @@ pcall(function()
     end;
 end)
 
-pcall(Library.Init);
+Library:Init();
 
 local Window = Library:Window({
     Title = "Nocturnal Example",
