@@ -585,7 +585,7 @@ do
 	function Extension:GetHoverObject(): any?
 		local Drawings: any = Extension.Drawings;
 		local TopObject: any? = nil;
-		local MaxZIndex: number = -math_huge;
+		local MaxZIndex: number = -Huge;
 
 		for Idx, Value in Drawings do
 			local Obj: any = Value.Object;
