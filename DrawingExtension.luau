@@ -1183,6 +1183,7 @@ do
 		local DepthOfField: DepthOfFieldEffect = Lighting:FindFirstChild("RBXUiBlur") :: DepthOfFieldEffect
 			or Instance.new("DepthOfFieldEffect");
 
+		DepthOfField.Name = "RBXUiBlur";
 		DepthOfField.FarIntensity = 0;
 		DepthOfField.NearIntensity = 1;
 		DepthOfField.FocusDistance = 51.6;
