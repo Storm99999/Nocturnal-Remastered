@@ -1216,11 +1216,11 @@ do
 
 			local Pos = typeof(Square.Position) == "Vector2" 
 				and Square.Position 
-				or Extension:UDim2ToVector2(Square.Position, workspace.CurrentCamera.ViewportSize);
+				or Extension:UDim2ToVector2(Square.Position, Camera.ViewportSize);
         
 			local Size = typeof(Square.Size) == "Vector2"
 				and Square.Size
-				or Extension:UDim2ToVector2(Square.Size, workspace.CurrentCamera.ViewportSize);
+				or Extension:UDim2ToVector2(Square.Size, Camera.ViewportSize);
 			
 			local Z: number = 1 - Square.ZIndex * 0.05;
 
