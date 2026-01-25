@@ -838,7 +838,7 @@ do
 		end;
 	end;
 
-	local function LerpCIELUV(c0: Color3, c1: Color3): (t: number) -> Color3
+	function Extension:LerpCIELUV(c0: Color3, c1: Color3): (t: number) -> Color3
 		local l0, u0, v0 = RgbToLuv13(c0);
 		local l1, u1, v1 = RgbToLuv13(c1);
 
