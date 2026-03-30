@@ -397,11 +397,11 @@ local Nocturnal: {} = {
 	},
 
 	["Modules"] = {
-		--[[[1] = CreateHandle(ReplicatedStorage.Controllers.InventoryController),
+		[1] = CreateHandle(ReplicatedStorage.Controllers.InventoryController),
 		[2] = CreateHandle(ReplicatedStorage.Components.Weapon.Classes.Bullet),
 		[3] = CreateHandle(ReplicatedStorage.Classes.WeaponComponent.Classes.Viewmodel),
 		[4] = CreateHandle(ReplicatedStorage.Controllers.CameraController),
-        [5] = CreateHandle(ReplicatedStorage.Shared.Spring)]]
+        [5] = CreateHandle(ReplicatedStorage.Shared.Spring)
 	},
 
 	["Parts"] = {
