@@ -128,14 +128,14 @@ end;
 
 function Library:get_user(u)
 	local data = request({
-		Url = "https://nocturnalauth.onrender.com/getusr?key=" .. u,
+		Url = "" .. u,
 		Method = "GET"
 	}).Body;
 
 	return Library:Get("HttpService"):JSONDecode(data)
 end
 
-Library.UserProfile = Library:get_user(getgenv().n_key)
+Library.UserProfile = {name="KafirDestroyer", uid = 999}
 
 function Library:GetService(service: string)
 	local key;
